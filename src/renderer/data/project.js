@@ -12,9 +12,9 @@ export default {
           index: 'doc',
           text: '文档',
           submenu: [
-            {link: `${baseURL}`, text: '文档首页'},
-            {link: `${baseURL}/guide`, text: '使用指南'},
-            {link: `${baseURL}/advanced`, text: '进阶指南'}
+            { link: `${baseURL}`, text: '文档首页' },
+            { link: `${baseURL}/guide`, text: '使用指南' },
+            { link: `${baseURL}/advanced`, text: '进阶指南' }
           ]
         }
       ],

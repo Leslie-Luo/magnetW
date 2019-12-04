@@ -16,7 +16,7 @@
 </template>
 
 <script>
-  import {ipcRenderer} from 'electron'
+  import { ipcRenderer } from 'electron'
   import PagerHeader from './components/PagerHeader'
 
   export default {

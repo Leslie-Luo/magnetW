@@ -10,7 +10,7 @@
 
 <script>
   import os from 'os'
-  import {remote} from 'electron'
+  import { remote } from 'electron'
 
   export default {
     data () {

@@ -19,13 +19,13 @@
 </template>
 
 <script>
-  import {ipcRenderer, clipboard, shell} from 'electron'
-  import {Base64} from 'js-base64'
+  import { ipcRenderer, clipboard, shell } from 'electron'
+  import { Base64 } from 'js-base64'
   import QrcodePopover from './QrcodePopover'
   import mixin from '../mixins/mixin'
 
   export default {
-    props: {'baseURL': String, 'item': Object},
+    props: { 'baseURL': String, 'item': Object },
     components: {
       QrcodePopover
     },

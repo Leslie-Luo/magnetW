@@ -42,11 +42,11 @@
 </template>
 
 <script>
-  import {ipcRenderer, remote, shell} from 'electron'
+  import { ipcRenderer, remote, shell } from 'electron'
   import BrowserLink from './BrowserLink'
 
   export default {
-    components: {BrowserLink},
+    components: { BrowserLink },
     props: {
       active: String
     },

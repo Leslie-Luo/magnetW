@@ -82,7 +82,7 @@
 </template>
 
 <script>
-  import {ipcRenderer, shell} from 'electron'
+  import { ipcRenderer, shell } from 'electron'
   import SettingGroup from '../components/SettingGroup'
   import SettingItem from '../components/SettingItem'
   import NumberInput from '../components/NumberInput'

@@ -1,12 +1,12 @@
 'use strict'
 
-import {app, BrowserWindow, session} from 'electron'
+import { app, BrowserWindow, session } from 'electron'
 import registerIPC from './ipc'
 import registerMenu from './menu'
-import {build} from '../../package.json'
+import { build } from '../../package.json'
 import is from 'electron-is'
 
-import {autoUpdater} from 'electron-updater'
+import { autoUpdater } from 'electron-updater'
 
 const path = require('path')
 

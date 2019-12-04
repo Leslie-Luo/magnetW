@@ -1,9 +1,9 @@
 import format from './format-parser'
 
-import {session} from 'electron'
+import { session } from 'electron'
 
 const request = require('request-promise-native')
-const fs = require('fs')
+// const fs = require('fs')
 const cacheManager = require('./cache')
 const xpath = require('xpath')
 const DOMParser = require('xmldom').DOMParser
@@ -35,7 +35,7 @@ function clearCache () {
  * @param paths
  * @returns
  */
-function transformSearchOption ({option, id, paths}) {
+function transformSearchOption ({ option, id, paths }) {
   const keyword = option.keyword
   const page = !option.page || option.page < 1 ? 1 : option.page
   // 如果没有指定的排序 就取第一个排序
@@ -47,7 +47,7 @@ function transformSearchOption ({option, id, paths}) {
     }
   }
   const path = paths[sort].replace(/{k}/g, encodeURIComponent(keyword)).replace(/{p}/g, page)
-  return {id, keyword, page, sort, path}
+  return { id, keyword, page, sort, path }
 }
 
 /**
@@ -57,8 +57,8 @@ function transformSearchOption ({option, id, paths}) {
  * @param setting
  * @returns
  */
-function buildRequest ({rule, option, setting}) {
-  const current = transformSearchOption({option, id: rule.id, paths: rule.paths})
+function buildRequest ({ rule, option, setting }) {
+  const current = transformSearchOption({ option, id: rule.id, paths: rule.paths })
 
   const root = rule.url
   const url = root + current.path
@@ -81,7 +81,7 @@ function buildRequest ({rule, option, setting}) {
     proxy: proxy
   }
 
-  return {current, requestOptions}
+  return { current, requestOptions }
 }
 
 /**
@@ -130,10 +130,10 @@ async function loadRuleByURL (url) {
     if (url.startsWith('http')) {
       // 如果是网络文件
       console.info('获取网络规则文件', url)
-      rule = await request(url, {timeout: 8000, json: true})
+      rule = await request(url, { timeout: 8000, json: true })
     } else {
       console.info('读取本地规则文件', url)
-      rule = JSON.parse(fs.readFileSync(url))
+      // rule = JSON.parse(fs.readFileSync(url))
     }
     if (!Array.isArray(rule) || rule.length <= 0) {
       throw new Error('规则格式不正确')
@@ -184,17 +184,17 @@ async function getRule () {
  * @param url 已拼接好的url
  * @param xpath 规则xpath
  */
-async function requestParseSearchItems ({requestOptions, xpath}) {
+async function requestParseSearchItems ({ requestOptions, xpath }) {
   try {
     const rsp = await request(requestOptions)
 
     // 用htmlparser2转换一次再解析
     let outerHTML = htmlparser2.DomUtils.getOuterHTML(htmlparser2.parseDOM(rsp))
     const document = domParser.parseFromString(outerHTML)
-    return {items: parseDocument(document, xpath)}
+    return { items: parseDocument(document, xpath) }
   } catch (e) {
     console.error('解析失败', e)
-    return {err: e}
+    return { err: e }
   }
 }
 
@@ -204,17 +204,17 @@ async function requestParseSearchItems ({requestOptions, xpath}) {
  * @param setting
  * @returns
  */
-async function asyncCacheSearchResult ({current, setting}) {
+async function asyncCacheSearchResult ({ current, setting }) {
   async function asyncRequest (option) {
     const rule = ruleMap[option.id]
-    const {current, requestOptions} = buildRequest({rule, option, setting})
+    const { current, requestOptions } = buildRequest({ rule, option, setting })
     const key = requestOptions.url
     if (cacheManager.get(key)) {
       // 如果还有缓存 就不请求了
       return
     }
     console.info('构建预加载请求', requestOptions)
-    const {err, items} = await requestParseSearchItems({requestOptions, xpath: rule.xpath})
+    const { err, items } = await requestParseSearchItems({ requestOptions, xpath: rule.xpath })
     if (items && items.length > 0) {
       // 存入缓存
       cacheManager.set(key, items, setting.cacheExpired)
@@ -253,7 +253,7 @@ async function asyncCacheSearchResult ({current, setting}) {
  */
 async function obtainSearchResult (option, setting, callback) {
   if (!option.keyword) {
-    const err = {message: '请输入要搜索的关键词'}
+    const err = { message: '请输入要搜索的关键词' }
     callback(err)
     return
   }
@@ -262,7 +262,7 @@ async function obtainSearchResult (option, setting, callback) {
   // 根据id找出具体规则
   const rule = ruleMap[option.id]
 
-  const {current, requestOptions} = buildRequest({rule, option, setting})
+  const { current, requestOptions } = buildRequest({ rule, option, setting })
   console.info('发起搜索', requestOptions)
 
   // 缓存
@@ -273,7 +273,7 @@ async function obtainSearchResult (option, setting, callback) {
   let err = null
   if (!useCache) {
     // 不使用缓存 去请求
-    const result = await requestParseSearchItems({requestOptions, xpath: rule.xpath})
+    const result = await requestParseSearchItems({ requestOptions, xpath: rule.xpath })
     err = result.err
     items = result.items
     if (items && items.length > 0) {
@@ -283,13 +283,13 @@ async function obtainSearchResult (option, setting, callback) {
   }
 
   const time = Date.now() - startTime
-  const res = {useCache, time}
-  const data = {current, res, items}
+  const res = { useCache, time }
+  const data = { current, res, items }
   callback(err, data)
 
   // 异步预加载并缓存
   if (items && items.length > 0 && setting.preload) {
-    asyncCacheSearchResult({current, setting})
+    asyncCacheSearchResult({ current, setting })
   }
 }
 

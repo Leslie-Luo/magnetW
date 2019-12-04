@@ -50,8 +50,8 @@
   import ItemButtonGroup from './ItemButtonGroup'
 
   export default {
-    props: {'items': Array, 'keyword': String, 'baseURL': String},
-    components: {HighlightName, ItemButtonGroup},
+    props: { 'items': Array, 'keyword': String, 'baseURL': String },
+    components: { HighlightName, ItemButtonGroup },
     methods: {},
     mounted () {
     }

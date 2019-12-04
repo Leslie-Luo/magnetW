@@ -28,12 +28,12 @@ const styles = {
 }
 
 const levels = {
-  error: {id: 1, color: 'red'},
-  warn: {id: 2, color: 'yellow'},
-  info: {id: 3, color: 'green'},
-  verbose: {id: 4, color: 'blue'},
-  debug: {id: 5, color: 'cyan'},
-  silly: {id: 6, color: 'magenta'}
+  error: { id: 1, color: 'red' },
+  warn: { id: 2, color: 'yellow' },
+  info: { id: 3, color: 'green' },
+  verbose: { id: 4, color: 'blue' },
+  debug: { id: 5, color: 'cyan' },
+  silly: { id: 6, color: 'magenta' }
 }
 
 function colorizeStart (style) {

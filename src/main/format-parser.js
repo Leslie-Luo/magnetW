@@ -81,9 +81,9 @@ export default {
           name = 'days'
         } else {
           const unit = [
-            {regx: /year|年/, name: 'years'}, {regx: /month|月/, name: 'months'},
-            {regx: /day|天/, name: 'days'}, {regx: /hours|小时/, name: 'hour'},
-            {regx: /minute|分钟/, name: 'minutes'}, {regx: /second|秒/, name: 'seconds'}
+            { regx: /year|年/, name: 'years' }, { regx: /month|月/, name: 'months' },
+            { regx: /day|天/, name: 'days' }, { regx: /hours|小时/, name: 'hour' },
+            { regx: /minute|分钟/, name: 'minutes' }, { regx: /second|秒/, name: 'seconds' }
           ]
           number = extractNumber(dateText)
           for (let i = 0; i < unit.length; i++) {

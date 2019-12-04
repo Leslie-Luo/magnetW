@@ -57,7 +57,7 @@
   import SearchPagination from '../components/SearchPagination'
   import PagerItems from '../components/PagerItems'
   import GuidePage from '../components/GuidePage'
-  import {ipcRenderer, remote, shell} from 'electron'
+  import { ipcRenderer, remote, shell } from 'electron'
 
   export default {
     components: {

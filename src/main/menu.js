@@ -1,4 +1,4 @@
-import {Menu} from 'electron'
+import { Menu } from 'electron'
 import openAboutWindow from 'about-window'
 
 const path = require('path')

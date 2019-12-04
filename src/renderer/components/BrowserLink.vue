@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import {shell} from 'electron'
+  import { shell } from 'electron'
   import mixin from '../mixins/mixin'
 
   export default {

@@ -1,9 +1,8 @@
 import repo from './repository'
 import path from 'path'
 import logger from './logger'
-import fs from 'fs'
 
-const {ipcMain} = require('electron')
+const { ipcMain } = require('electron')
 
 export default function (mainWindow) {
   process.on('uncaughtException', function (e) {
