@@ -1,6 +1,6 @@
-import repo from './repository'
 import path from 'path'
 import logger from './logger'
+const repo = require('./repository')
 
 const { ipcMain } = require('electron')
 

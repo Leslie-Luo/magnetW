@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-import './plugins/filter'
+import '../../web/plugins/filter'
 import App from './App'
 import router from './router'
 import store from './store'
@@ -14,7 +14,9 @@ Vue.use(Setting)
 Vue.use(Project)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
-Vue.http = Vue.prototype.$http = axios
+Vue.http = Vue.prototype.$http = axios.create({
+  baseURL: 'http://localhost:8000/api/'
+})
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

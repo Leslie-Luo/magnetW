@@ -10,7 +10,7 @@ function extractFloat (str) {
   return parseFloat(match ? match[0] : str)
 }
 
-export default {
+module.exports = {
   extractNumber,
   extractFloat,
   /**

@@ -1,28 +1,30 @@
-import format from './format-parser'
+const format = require('./format-parser')
+const URI = require('urijs')
 
-import { session } from 'electron'
+// import { session } from 'electron'
 
 const request = require('request-promise-native')
 // const fs = require('fs')
-const cacheManager = require('./cache')
+const cacheManager = require('./node-cache')
 const xpath = require('xpath')
 const DOMParser = require('xmldom').DOMParser
 const htmlparser2 = require('htmlparser2')
 const domParser = new DOMParser({
   errorHandler: {
     warning: w => {
-      console.warn(w)
+      // console.warn(w)
     },
     error: e => {
-      console.error(e)
+      // console.error(e)
     },
     fatalError: e => {
-      console.error(e)
+      // console.error(e)
     }
   }
 })
 
 let ruleMap = {}
+const setting = require('./defaultSetting')()
 
 function clearCache () {
   cacheManager.clear()
@@ -51,6 +53,110 @@ function transformSearchOption ({ option, id, paths }) {
 }
 
 /**
+ * 补齐搜索参数
+ * @param rule
+ * @param keyword
+ * @param page
+ * @param sort
+ * @returns {{id: *, page: *, sort: *, keyword: *, url: *}}
+ */
+function makeupSearchOption ({ id, keyword, page, sort }) {
+  const rule = getRuleById(id)
+
+  const newPage = Math.max(1, page || null)
+  // 如果没有指定的排序 就取第一个排序
+  const pathKeys = Object.keys(rule.paths)
+  const newSort = pathKeys.indexOf(sort) !== -1 ? sort : pathKeys[0]
+  // 拼接完整url
+  const url = rule.url + rule.paths[newSort].replace(/{k}/g, encodeURIComponent(keyword)).replace(/{p}/g, newPage)
+  return { id: rule.id, keyword, page: newPage, sort: newSort, url }
+}
+
+function getRuleById (id) {
+  return ruleMap[id] || ruleMap[Object.keys(ruleMap)[0]]
+}
+
+/**
+ *
+ * @param url 搜索的url 必选项
+ * @param userAgent 必选项
+ * @returns {{Origin: *, Referer: *, 'User-Agent': *, Host: *, 'Accept-Language': string}}
+ */
+function makeHeaders ({ url, userAgent }) {
+  const uri = new URI(url)
+  const host = uri.host()
+  const origin = uri.origin()
+  return {
+    'Host': host,
+    'Origin': origin,
+    'Referer': origin,
+    'Accept-Language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en;q=0.7,und;q=0.6,ja;q=0.5',
+    'User-Agent': userAgent
+  }
+}
+
+async function requestDocument ({ url, userAgent }) {
+  const timeout = setting.timeout
+  const proxyURL = setting.proxy && setting.proxy ? `http://${setting.proxyHost}:${setting.proxyPort}` : null
+
+  const headers = makeHeaders({ url, userAgent })
+  const html = await request({
+    url: url,
+    headers: headers,
+    timeout: timeout,
+    proxy: proxyURL
+  })
+
+  // 用htmlparser2转换一次再解析
+  const outerHTML = htmlparser2.DomUtils.getOuterHTML(htmlparser2.parseDOM(html))
+  return domParser.parseFromString(outerHTML)
+}
+
+async function obtainSearchResult ({ id, url, userAgent }) {
+  const rule = getRuleById(id)
+
+  // 如果没有缓存
+  let items = cacheManager.get(url)
+  if (!items || items.length <= 0) {
+    // 去源站请求
+    let document = await requestDocument({ url, userAgent })
+    items = parseItemsDocument(document, rule.xpath)
+
+    // 缓存请求到的列表
+    cacheManager.set(url, items)
+  }
+  return items
+}
+
+/**
+ * 缓存下一页和下一个源站
+ * @param id
+ * @param keyword
+ * @param page
+ * @param sort
+ * @param userAgent
+ */
+function asyncCacheSearchResult ({ id, keyword, page, sort }, { userAgent }) {
+  if (!setting.preload) {
+    return
+  }
+
+  // 缓存下一页
+  const next = makeupSearchOption({ id, keyword, page: page + 1, sort })
+  obtainSearchResult({ id, url: next.url, userAgent })
+
+  if (page === 1) {
+    // 是第一页才缓存下一个源站
+    let ruleKeys = Object.keys(ruleMap)
+    const rule = ruleMap[ruleKeys[ruleKeys.indexOf(id) + 1]]
+    if (rule) {
+      const next = makeupSearchOption({ id: rule.id, keyword, page, sort })
+      obtainSearchResult({ id: next.id, url: next.url, userAgent })
+    }
+  }
+}
+
+/**
  * 根据规则和参数构建请求
  * @param rule
  * @param searchOption
@@ -72,7 +178,7 @@ function buildRequest ({ rule, option, setting }) {
     'Accept-Language': 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en;q=0.7,und;q=0.6,ja;q=0.5'
   }
   // 如果要自定义UA
-  headers['User-Agent'] = setting.customUserAgent ? setting.customUserAgentValue : session.defaultSession.getUserAgent()
+  // headers['User-Agent'] = setting.customUserAgent ? setting.customUserAgentValue : session.defaultSession.getUserAgent()
   const proxy = rule.proxy && setting.proxy ? `http://${setting.proxyHost}:${setting.proxyPort}` : null
   const requestOptions = {
     url: url,
@@ -85,11 +191,11 @@ function buildRequest ({ rule, option, setting }) {
 }
 
 /**
- * 解析Document
+ * 解析列表Document
  * @param document
  * @param expression xpath表达式对象
  */
-function parseDocument (document, expression) {
+function parseItemsDocument (document, expression) {
   const items = []
   const groupNodes = xpath.select(expression.group, document)
   groupNodes.forEach((child, index) => {
@@ -115,7 +221,7 @@ function parseDocument (document, expression) {
       })
     }
   })
-  console.silly(`\n${JSON.stringify(items, '\t', 2)}`)
+  // console.silly(`\n${JSON.stringify(items, '\t', 2)}`)
   return items
 }
 
@@ -191,7 +297,7 @@ async function requestParseSearchItems ({ requestOptions, xpath }) {
     // 用htmlparser2转换一次再解析
     let outerHTML = htmlparser2.DomUtils.getOuterHTML(htmlparser2.parseDOM(rsp))
     const document = domParser.parseFromString(outerHTML)
-    return { items: parseDocument(document, xpath) }
+    return { items: parseItemsDocument(document, xpath) }
   } catch (e) {
     console.error('解析失败', e)
     return { err: e }
@@ -204,7 +310,7 @@ async function requestParseSearchItems ({ requestOptions, xpath }) {
  * @param setting
  * @returns
  */
-async function asyncCacheSearchResult ({ current, setting }) {
+async function asyncCacheSearchResult1 ({ current, setting }) {
   async function asyncRequest (option) {
     const rule = ruleMap[option.id]
     const { current, requestOptions } = buildRequest({ rule, option, setting })
@@ -251,7 +357,7 @@ async function asyncCacheSearchResult ({ current, setting }) {
  * @param callback 回调
  * @returns
  */
-async function obtainSearchResult (option, setting, callback) {
+async function obtainSearchResult1 (option, setting, callback) {
   if (!option.keyword) {
     const err = { message: '请输入要搜索的关键词' }
     callback(err)
@@ -293,9 +399,12 @@ async function obtainSearchResult (option, setting, callback) {
   }
 }
 
-export default {
+module.exports = {
   loadRuleByURL,
   getRule,
   obtainSearchResult,
-  clearCache
+  clearCache,
+  makeupSearchOption,
+  makeHeaders,
+  asyncCacheSearchResult
 }

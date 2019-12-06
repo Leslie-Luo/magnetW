@@ -1,11 +1,6 @@
 <template>
     <div id="app">
         <el-container>
-            <div class="header-placeholder drag" @dblclick="handleClickMaxWindow"></div>
-            <el-header>
-                <pager-header :dblclick="handleClickMaxWindow"></pager-header>
-            </el-header>
-
             <el-main class="main">
                 <keep-alive>
                     <router-view></router-view>
@@ -16,17 +11,10 @@
 </template>
 
 <script>
-  import { ipcRenderer } from 'electron'
-  import PagerHeader from './components/PagerHeader'
-
   export default {
     components: {
-      PagerHeader
     },
     methods: {
-      handleClickMaxWindow () {
-        ipcRenderer.send('window-max')
-      }
     }
   }
 </script>

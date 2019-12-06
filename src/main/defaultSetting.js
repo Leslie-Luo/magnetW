@@ -20,7 +20,6 @@ module.exports = function () {
     cacheExpired: 3600,
     // 自定义UserAgent
     customUserAgent: false,
-    customUserAgentValue: null,
-    timeout: 10000
+    customUserAgentValue: null
   }
 }
