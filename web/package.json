@@ -1,9 +1,11 @@
 {
-  "name": "web",
-  "version": "1.0.0",
-  "description": "My world-class Nuxt.js project",
+  "name": "magnetw",
+  "productName": "磁力搜",
+  "version": "3.1.0",
+  "description": "磁力链接聚合搜索",
   "author": "Xian Dan",
-  "private": true,
+  "license": "GNU General Public License v3.0",
+  "main": "./dist/electron/main.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server",
     "build": "nuxt build",

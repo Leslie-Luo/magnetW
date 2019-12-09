@@ -4,14 +4,16 @@
                 disable-transitions :type="getResolutionTagType(resolution)">
             {{resolution}}
         </el-tag>
-        <span class="page-items-magnet" @click="handleOpenMagnet(url)"
-              v-html="highlight(keyword, value, 'highlight-name')"></span>
+        <browser-link class="page-items-magnet" :href="url" type="primary"
+              v-html="highlight(keyword, value, 'highlight-name')"></browser-link>
     </div>
 </template>
 
 <script>
 
+  import BrowserLink from './BrowserLink'
   export default {
+    components: { BrowserLink },
     props: ['keyword', 'resolution', 'url', 'value'],
     methods: {
       getResolutionTagType (resolution) {

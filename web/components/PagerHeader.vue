@@ -73,7 +73,6 @@
       flex: 1;
       display: flex;
       align-items: center;
-      margin: 0 150px;
 
       .pager-header-input {
         width: 100%;

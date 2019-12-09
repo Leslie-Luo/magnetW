@@ -58,7 +58,6 @@
 
     .el-scrollbar__wrap {
       overflow-x: hidden !important;
-      margin: 0 !important;
     }
 
     .el-scrollbar__view {

@@ -1,5 +1,13 @@
 <template>
   <div class="guide-page">
+    <el-alert
+      class="guide-page-child"
+      v-show="count>0"
+      type="success"
+      :closable="false"
+      show-icon>
+      <span slot="title">成功加载{{count}}个规则</span>
+    </el-alert>
     <div v-for="it in project.guide.content" class="guide-content">
       <span class="guide-title">{{it.title}}</span>
       <div class="guide-content-item" v-for="item in it.items">
@@ -14,7 +22,7 @@
   import BrowserLink from './BrowserLink'
 
   export default {
-    props: [],
+    props: ['count'],
     components: {
       BrowserLink
     },
@@ -29,6 +37,11 @@
 </script>
 
 <style scoped lang="scss">
+
+  .guide-page-child {
+    margin-bottom: 20px;
+
+  }
 
   .guide-content {
     margin: 10px 0 20px 0;

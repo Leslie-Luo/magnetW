@@ -1,26 +1,26 @@
 <template>
-  <el-button v-if="button" :type="type" @click="handleClickLink" :size="size">
-    <slot></slot>
-  </el-button>
-  <el-link v-else :type="type" @click="handleClickLink" :underline="underline||false">
+  <el-link :type="type" :href="formatHref" :underline="underline||false" :class="formatClass">
     <slot></slot>
   </el-link>
 </template>
 
 <script>
-  // import { shell } from 'electron'
   import mixin from '../mixins/mixin'
 
   export default {
     props: ['href', 'underline', 'type', 'button', 'size'],
     mixins: [mixin],
+    computed: {
+      formatHref () {
+        return this.href ? this.formatURL(this.href) : this.href
+      },
+      formatClass () {
+        return this.button ? `el-button el-button--default el-button--${this.size}` : ''
+      }
+    },
     methods: {
       handleClickLink () {
-        if (this.href) {
-          const url = this.formatURL(this.href)
-          // shell.openExternal(url)
-          window.open(url)
-        }
+        window.open(this.formatHref())
       }
     }
   }

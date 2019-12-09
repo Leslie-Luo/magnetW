@@ -1,12 +1,12 @@
 <template>
-  <el-container v-loading="loading.page">
+  <el-container v-loading="loading.page" class="container" ref="main">
     <el-header>
       <pager-header>
         <!--搜索框与排序菜单-->
         <search-input :name="activeRule?activeRule.name:null"
                       class="pager-header-input"
-                      @search="handleSearch"
-                      v-model="page.current.keyword"></search-input>
+                      @search="handleClickSearch"
+                      :keyword="page.current.keyword"></search-input>
       </pager-header>
     </el-header>
     <el-container>
@@ -19,7 +19,8 @@
       </el-aside>
       <el-main class="index-main scroll-container" v-if="activeRule">
         <el-scrollbar class="index-main-scrollbar">
-          <guide-page ref="guidePage" v-show="showGuidePage"></guide-page>
+          <guide-page ref="guidePage" v-show="showGuidePage"
+                      :count="rule.length"></guide-page>
           <div class="pager-search-header" ref="pagerSearchHeader">
             <div class="search-option">
               <!--排序选项-->
@@ -27,12 +28,12 @@
                 class="search-option-left"
                 :url="page.current.url||activeRule.url"
                 :paths="activeRule.paths"
-                @change="handleSearch"
+                @change="handleClickSearch"
                 v-model="page.current.sort"></search-sort>
               <!--页码-->
-              <search-pagination v-model="page.current.page"
+              <search-pagination :page="page.current.page"
                                  v-show="page.items"
-                                 @change="handleSearch"></search-pagination>
+                                 @change="handlePageChanged"></search-pagination>
             </div>
           </div>
           <!--搜索结果-->
@@ -42,12 +43,12 @@
                            :keyword="page.current.keyword"
                            :baseURL="activeRule.url"></pager-items>
               <search-pagination class="footer-search-pagination"
-                                 v-model="page.current.page"
-                                 @change="handleSearch"></search-pagination>
+                                 :page="page.current.page"
+                                 @change="handlePageChanged"></search-pagination>
             </div>
           </div>
         </el-scrollbar>
-        <el-backtop target=".index-main-scrollbar .el-scrollbar__wrap">
+        <el-backtop target=".index-main-scrollbar .el-scrollbar__wrap" ref="backtop">
         </el-backtop>
       </el-main>
     </el-container>
@@ -66,11 +67,20 @@
   import axios from '~/plugins/axios'
 
   export default {
-    async asyncData () {
+    async asyncData ({ query }) {
+      const current = {
+        id: query.id,
+        keyword: query.k,
+        sort: query.s,
+        page: parseInt(query.p) || 1
+      }
       const { data } = await axios.get('/rule')
 
       return {
-        rule: data
+        rule: data,
+        page: {
+          current
+        }
       }
     },
     components: {
@@ -78,12 +88,11 @@
     },
     data () {
       return {
-        page: {
-          current: {
-            keyword: null
-          }
-        },
         rule: null,
+        page: {
+          current: null,
+          items: null
+        },
         activeRule: null,
         loading: {
           table: false,
@@ -94,6 +103,12 @@
     },
     methods: {
       handleRuleChanged (id) {
+        this.handleActiveRule(id)
+        this.page.current.page = 1
+
+        this.handleRequestSearch()
+      },
+      handleActiveRule (id) {
         const activeRule = this.getRuleByID(id) || this.rule[0]
 
         // 如果当前规则没有此排序 就默认选择一个排序
@@ -103,15 +118,31 @@
         }
         this.activeRule = activeRule
         this.page.current.id = activeRule.id
-        this.page.current.page = 1
         this.page.current.url = activeRule.url
-        this.$localSetting.saveValue('last_rule_id', activeRule.id)
-
-        this.handleSearch()
       },
-      handleSearch () {
+      handleClickSearch (keyword) {
+        if (keyword) {
+          this.page.current.keyword = keyword
+        }
+        this.page.current.page = 1
+        this.handleRequestSearch()
+      },
+      handlePageChanged (page) {
+        this.page.current.page = page
+        this.updateAddress()
+      },
+      updateAddress () {
+        const params = this.page.current
+        history.pushState(0, document.title, `?id=${params.id}&k=${params.keyword}&s=${params.sort}&p=${params.page}`)
+      },
+      /**
+       * 请求搜索
+       */
+      handleRequestSearch () {
         const params = this.page.current
         if (params.keyword) {
+          this.$localSetting.saveValue('last_rule_id', params.id)
+
           this.showGuidePage = false
           this.loading.table = true
           console.info('搜索', JSON.stringify(params, '/t', 2))
@@ -141,13 +172,24 @@
     created () {
     },
     mounted () {
-      const id = this.$localSetting.get('last_rule_id')
-      this.handleRuleChanged(id)
+      const id = this.page.current.id || this.$localSetting.get('last_rule_id')
+      this.handleActiveRule(id)
+      this.handleRequestSearch()
+    },
+    head () {
+      return this.page.current.keyword ? {
+        title: `${this.$app.productName} - ${this.page.current.keyword} - ${this.page.current.page}`
+      } : null
     }
   }
 </script>
 
 <style lang="scss" scoped>
+
+  .container {
+    max-width: 960px;
+    margin: auto;
+  }
 
   .pager-search-header {
     padding: 20px;
@@ -165,8 +207,17 @@
     margin-top: 0;
   }
 
+  .aside-menu {
+    margin-right: 15px;
+  }
+
   .index-main {
     padding: 0 !important;
+    position: relative;
+
+    .el-backtop {
+      position: absolute;
+    }
   }
 
   .index-main-scrollbar {
@@ -174,7 +225,7 @@
   }
 
   .guide-page {
-    margin-top: 150px;
+    margin-top: 70px;
     padding: 0 20px 20px 20px;
     position: absolute;
     z-index: 2000;
@@ -207,6 +258,10 @@
   }
 
   .pager-header-input {
+    padding-left: 30px;
+    padding-right: 30px;
+    max-width: 500px;
+    margin: auto;
   }
 
 </style>

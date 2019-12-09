@@ -9,9 +9,11 @@ http.interceptors.response.use(response => {
     return response
   }, error => {
     // 如果有success字段并且是false而且有提示 就替换提示
-    const rsp = error.response.data
-    if (rsp.hasOwnProperty('success') && rsp.success === false && rsp.message) {
-      error.message = rsp.message
+    if (error.response) {
+      const rsp = error.response.data
+      if (rsp.hasOwnProperty('success') && rsp.success === false && rsp.message) {
+        error.message = rsp.message
+      }
     }
     return Promise.reject(error)
   }
