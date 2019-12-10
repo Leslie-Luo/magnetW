@@ -91,7 +91,30 @@ async function requestDocument ({ url, userAgent }) {
   return domParser.parseFromString(outerHTML)
 }
 
-async function obtainSearchResult ({ id, url, userAgent }) {
+async function obtainDetailResult ({ id, path }, { userAgent }) {
+  const rule = getRuleById(id)
+  if (!rule || !rule.xpath.detail) {
+    throw new Error('此源站没有配置详情规则')
+  }
+  const url = rule.url + path
+  // 如果有缓存
+  let detail = cacheManager.get(url)
+  if (!detail) {
+    // 去源站请求详情
+    let document = await requestDocument({ url, userAgent })
+    detail = parseDetailDocument(document, rule.xpath.detail)
+
+    if (detail) {
+      detail['url'] = url
+
+      // 缓存请求到的详情
+      cacheManager.set(url, detail)
+    }
+  }
+  return detail
+}
+
+async function obtainSearchResult ({ id, url }, { userAgent }) {
   const rule = getRuleById(id)
 
   // 如果没有缓存
@@ -101,8 +124,10 @@ async function obtainSearchResult ({ id, url, userAgent }) {
     let document = await requestDocument({ url, userAgent })
     items = parseItemsDocument(document, rule.xpath)
 
-    // 缓存请求到的列表
-    cacheManager.set(url, items)
+    if (items && items.length > 0) {
+      // 缓存请求到的列表
+      cacheManager.set(url, items)
+    }
   }
   return items
 }
@@ -122,7 +147,7 @@ function asyncCacheSearchResult ({ id, keyword, page, sort }, { userAgent }) {
 
   // 缓存下一页
   const next = makeupSearchOption({ id, keyword, page: page + 1, sort })
-  obtainSearchResult({ id, url: next.url, userAgent })
+  obtainSearchResult({ id, url: next.url }, { userAgent })
 
   if (page === 1) {
     // 是第一页才缓存下一个源站
@@ -130,7 +155,7 @@ function asyncCacheSearchResult ({ id, keyword, page, sort }, { userAgent }) {
     const rule = ruleMap[ruleKeys[ruleKeys.indexOf(id) + 1]]
     if (rule) {
       const next = makeupSearchOption({ id: rule.id, keyword, page, sort })
-      obtainSearchResult({ id: next.id, url: next.url, userAgent })
+      obtainSearchResult({ id: next.id, url: next.url }, { userAgent })
     }
   }
 }
@@ -168,6 +193,33 @@ function parseItemsDocument (document, expression) {
   })
   // console.silly(`\n${JSON.stringify(items, '\t', 2)}`)
   return items
+}
+
+/**
+ * 解析详情
+ * @param document
+ * @param expression
+ */
+function parseDetailDocument (document, expression) {
+  const rootNode = xpath.select1(expression.root, document)
+  let magnet
+  if (expression.magnet) {
+    magnet = format.extractMagnet(format.extractTextByNode(xpath.select1(expression.magnet, rootNode)))
+    if (!magnet) {
+      return null
+    }
+  }
+  const fileNodes = expression.files ? xpath.select(expression.files, rootNode) : null
+  const files = []
+  fileNodes.forEach((child, index) => {
+    const fileArray = format.splitByFileSize(format.extractTextByNode(child))
+    console.log(fileArray)
+    files.push({
+      name: fileArray[0],
+      size: format.extractFileSize(fileArray[1])
+    })
+  })
+  return { magnet, files }
 }
 
 /**
@@ -236,6 +288,6 @@ module.exports = {
   obtainSearchResult,
   clearCache,
   makeupSearchOption,
-  makeHeaders,
+  obtainDetailResult,
   asyncCacheSearchResult
 }

@@ -182,7 +182,12 @@
       "name": "./div[1]/div[1]/a[1]",
       "size": "./div[2]/text()[1]",
       "date": "./div[2]/text()[2]",
-      "hot": "./div[2]/span[1]"
+      "hot": "./div[2]/span[1]",
+      "detail": {
+        "root": "//*[@id=\"Information_container\"]/div[2]",
+        "magnet": "./div[1]/div[2]/a/@href",
+        "files": "./div[3]/div[2]/ul/li/div"
+      }
     }
   },
   {
@@ -254,7 +259,6 @@
       "hot": "./div[2]/div[1]"
     }
   },
-
   {
     "id": "crsoso",
     "name": " 超人搜索",

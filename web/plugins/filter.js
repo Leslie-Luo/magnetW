@@ -81,3 +81,13 @@ Vue.filter('isNotEmpty', function (obj) {
   }
   return !!obj
 })
+
+Vue.filter('formatURL', function (url) {
+  if (url && url.startsWith('http')) {
+    const params = 'from=mw'
+    const symbol = url.indexOf('?') !== -1 ? '&' : '?'
+    return url + symbol + params
+  } else {
+    return url
+  }
+})

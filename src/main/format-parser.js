@@ -1,13 +1,16 @@
 const moment = require('moment')
 
+const sizeUnit = ['B|bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+const sizeUnitRegx = sizeUnit.join('|')
+
 function extractNumber (str) {
   const match = /\d+/.exec(str)
-  return parseInt(match ? match[0] : str)
+  return match ? parseInt(match[0]) : str
 }
 
 function extractFloat (str) {
   const match = /(\d+(\.\d+)?)/.exec(str)
-  return parseFloat(match ? match[0] : str)
+  return match ? parseInt(match[0]) : str
 }
 
 module.exports = {
@@ -53,7 +56,7 @@ module.exports = {
   extractMagnet (url) {
     if (url) {
       if (/magnet:?[^\\"]+/.test(url)) {
-        return url
+        return url.toLowerCase()
       } else {
         // 如果不是磁力链 就提取 连续字母数字32-40位
         let match = /[\da-zA-Z]{32,40}/.exec(url)
@@ -98,15 +101,14 @@ module.exports = {
     }
   },
   /**
-   * 提取文件大小
+   * 提取文件大小(字节)
    * @param sizeText
    */
   extractFileSize (sizeText) {
     if (sizeText) {
-      let unit = ['B|bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
       let index = -1
-      for (let i = unit.length - 1; i >= 0; i--) {
-        if (new RegExp(unit[i], 'i').test(sizeText)) {
+      for (let i = sizeUnit.length - 1; i >= 0; i--) {
+        if (new RegExp(sizeUnit[i], 'i').test(sizeText)) {
           index = i
           break
         }
@@ -116,5 +118,13 @@ module.exports = {
       }
       return sizeText
     }
+  },
+  splitByFileSize (str) {
+    const regx = new RegExp(`(\\d+(\\.\\d+)?) {1,3}(${sizeUnitRegx})$`, 'gi')
+    const match = regx.exec(str)
+    const filesize = match ? match[0] : str
+    const filename = str.replace(regx, '')
+    const array = [filename, filesize]
+    return array.filter(it => it.trim())
   }
 }

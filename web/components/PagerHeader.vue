@@ -12,7 +12,7 @@
           <el-submenu v-if="menuItem.submenu" :index="menuItem.index" popper-class="header-submenu">
             <browser-link slot="title" :href="menuItem.link" :underline="false">{{menuItem.text}}
             </browser-link>
-            <el-menu-item v-for="subItem in menuItem.submenu">
+            <el-menu-item v-for="subItem in menuItem.submenu" :key="subItem.link">
               <browser-link :href="subItem.link" :underline="false">{{subItem.text}}</browser-link>
             </el-menu-item>
           </el-submenu>

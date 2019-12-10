@@ -28,8 +28,8 @@
                 class="search-option-left"
                 :url="page.current.url||activeRule.url"
                 :paths="activeRule.paths"
-                @change="handleClickSearch"
-                v-model="page.current.sort"></search-sort>
+                @change="handleSortChanged"
+                :sortKey="page.current.sort"></search-sort>
               <!--页码-->
               <search-pagination :page="page.current.page"
                                  v-show="page.items"
@@ -121,19 +121,27 @@
         this.page.current.url = activeRule.url
       },
       handleClickSearch (keyword) {
-        if (keyword) {
-          this.page.current.keyword = keyword
-        }
+        this.page.current.keyword = keyword
         this.page.current.page = 1
         this.handleRequestSearch()
       },
       handlePageChanged (page) {
         this.page.current.page = page
-        this.updateAddress()
+        this.handleRequestSearch()
+      },
+      /**
+       * 更换排序
+       */
+      handleSortChanged (sortKey) {
+        this.page.current.sort = sortKey
+        this.page.current.page = 1
+        this.handleRequestSearch()
       },
       updateAddress () {
         const params = this.page.current
-        history.pushState(0, document.title, `?id=${params.id}&k=${params.keyword}&s=${params.sort}&p=${params.page}`)
+        const path = `?id=${params.id}&k=${params.keyword}&s=${params.sort}&p=${params.page}`
+        history.pushState(0, document.title, path)
+        this.$localSetting.saveValue('last_rule_id', params.id)
       },
       /**
        * 请求搜索
@@ -141,7 +149,7 @@
       handleRequestSearch () {
         const params = this.page.current
         if (params.keyword) {
-          this.$localSetting.saveValue('last_rule_id', params.id)
+          this.updateAddress()
 
           this.showGuidePage = false
           this.loading.table = true

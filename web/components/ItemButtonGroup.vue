@@ -1,37 +1,59 @@
 <template>
   <div>
     <qrcode-popover :text="item.magnet" :title="item.name">
-      <el-button :size="size" icon="iconfont icon-qrcode" class="popover-button">
+      <browser-button :size="size" icon="iconfont icon-qrcode" class="popover-button">
         二维码
-      </el-button>
+      </browser-button>
     </qrcode-popover>
-    <el-button :size="size" icon="el-icon-document" @click="handleDetailUrl(item.detailUrl)">
+    <browser-link :size="size" icon="el-icon-document"
+                  :href="baseURL + item.detailUrl|formatURL"
+                  :button="true"
+                  :_blank="true">
       源站详情
-    </el-button>
-    <el-button :size="size" icon="iconfont icon-router" @click="handleMiWiFi(item.magnet)">
+    </browser-link>
+    <browser-button :size="size" icon="el-icon-files"
+                    @click="handleClickFiles(item.detailUrl)">
+      文件列表
+    </browser-button>
+    <browser-link :size="size" icon="iconfont icon-router"
+                  :href="formatMiWiFiURL"
+                  :button="true"
+                  :_blank="true">
       小米路由
-    </el-button>
-    <el-button :size="size" type="primary" plain icon="el-icon-copy-document"
-               @click="handleCopyMagnet(item.magnet)">
+    </browser-link>
+    <browser-button :size="size" type="primary" plain icon="el-icon-copy-document"
+                    @click="handleCopyMagnet(item.magnet)">
       复制链接
-    </el-button>
+    </browser-button>
   </div>
 </template>
 
 <script>
   import { Base64 } from 'js-base64'
   import QrcodePopover from './QrcodePopover'
-  import mixin from '../mixins/mixin'
+  import BrowserButton from './BrowserButton'
+  import BrowserLink from './BrowserLink'
 
   export default {
     props: { 'baseURL': String, 'item': Object },
     components: {
+      BrowserLink,
+      BrowserButton,
       QrcodePopover
     },
-    mixins: [mixin],
+    mixin
     data () {
       return {
         size: 'mini'
+      }
+    },
+    computed: {
+      /**
+       * 小米路由
+       */
+      formatMiWiFiURL () {
+        const url = this.item.magnet
+        return 'http://d.miwifi.com/d2r/?url=' + Base64.encodeURI(url)
       }
     },
     methods: {
@@ -48,19 +70,16 @@
         })
       },
       /**
-       * 小米路由
-       * @param url
-       */
-      handleMiWiFi (url) {
-        const miwifi = 'http://d.miwifi.com/d2r/?url=' + Base64.encodeURI(url)
-        window.open(miwifi)
-      },
-      /**
-       * 去源站详情
+       * 文件列表
        * @param detailUrl
        */
-      handleDetailUrl (detailUrl) {
-        window.open(this.formatURL(this.baseURL + detailUrl))
+      handleClickFiles (detailUrl) {
+        this.$copyText(url).then((e) => {
+          this.$message({
+            message: '复制成功',
+            type: 'success'
+          })
+        })
       }
     }
   }

@@ -32,10 +32,11 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '@/plugins/project',
     '@/plugins/app',
+    '@/plugins/clipboard',
     '@/plugins/element-ui',
     '@/plugins/filter',
-    '@/plugins/project',
     '@/plugins/localstorage',
     '@/plugins/localsetting'
   ],

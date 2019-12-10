@@ -13,6 +13,7 @@ module.exports = async (ctx, next) => {
       ctx.throw(ctx.status, ctx.message)
     }
   } catch (e) {
+    console.error(e)
     ctx.status = e.statusCode || e.status || 500
     ctx.body = {
       success: false,

@@ -1,34 +1,41 @@
 <template>
-  <el-link :type="type" :href="formatHref" :underline="underline||false" :class="formatClass">
+  <el-link :type="type"
+           :href="href"
+           :target="_blank?'_blank':'_self'"
+           :underline="underline||false"
+           :icon="icon"
+           :class="buttonClass">
     <slot></slot>
   </el-link>
 </template>
 
 <script>
-  import mixin from '../mixins/mixin'
 
   export default {
-    props: ['href', 'underline', 'type', 'button', 'size'],
-    mixins: [mixin],
+    props: {
+      'href': String,
+      'underline': Boolean,
+      'type': String,
+      'button': Boolean,
+      'size': String,
+      '_blank': Boolean,
+      'icon': String
+    },
     computed: {
-      formatHref () {
-        return this.href ? this.formatURL(this.href) : this.href
-      },
-      formatClass () {
-        return this.button ? `el-button el-button--default el-button--${this.size}` : ''
+      buttonClass () {
+        return this.button ? `el-button el-button--default el-button--${this.size}` : 'browser-link'
       }
     },
     methods: {
       handleClickLink () {
-        window.open(this.formatHref())
       }
     }
   }
 </script>
 
 <style scoped>
-  .el-link {
+  .browser-link {
+    font-size: inherit;
     font-weight: normal;
-    vertical-align: baseline;
   }
 </style>

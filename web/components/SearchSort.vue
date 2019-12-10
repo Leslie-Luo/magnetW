@@ -1,15 +1,15 @@
 <template>
-    <div class="search-sort">
-        <!--源站按钮-->
-        <browser-link button="true" size="mini" :href="url" class="link-button">去源站</browser-link>
+  <div class="search-sort">
+    <!--源站按钮-->
+    <browser-link :button="true" size="mini" :href="url|formatURL" :_blank="true" class="link-button">去源站</browser-link>
 
-        <!--排序方式-->
-        <el-radio-group @change="emitSortChanged" size="mini" v-model="checkedSortKey">
-            <el-radio-button v-for="(value, key) in paths" :key="key"
-                             :label="key">{{getLabelByKey(key)}}
-            </el-radio-button>
-        </el-radio-group>
-    </div>
+    <!--排序方式-->
+    <el-radio-group @change="emitSortChanged" size="mini" v-model="checkedSortKey">
+      <el-radio-button v-for="(value, key) in paths" :key="key"
+                       :label="key">{{getLabelByKey(key)}}
+      </el-radio-button>
+    </el-radio-group>
+  </div>
 </template>
 
 <script>
@@ -55,7 +55,7 @@
         return key in this.presetLabels ? this.presetLabels[key] : key
       }
     },
-    mounted () {
+    created () {
       this.checkedSortKey = this.sortKey
     }
   }
@@ -63,17 +63,17 @@
 
 <style lang="scss" scoped>
 
-    .el-button, .el-radio-group {
-        margin-top: 2px;
-        margin-bottom: 2px;
-    }
+  .el-button, .el-radio-group {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
 
-    .pager-items-pagination {
-        text-align: right;
-    }
+  .pager-items-pagination {
+    text-align: right;
+  }
 
-    .link-button {
-        vertical-align: middle;
-        margin-right: 5px;
-    }
+  .link-button {
+    vertical-align: middle;
+    margin-right: 5px;
+  }
 </style>

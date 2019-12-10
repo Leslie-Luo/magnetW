@@ -1,17 +1,18 @@
 <template>
-    <div>
-        <el-tag size="mini" v-show="resolution"
-                disable-transitions :type="getResolutionTagType(resolution)">
-            {{resolution}}
-        </el-tag>
-        <browser-link class="page-items-magnet" :href="url" type="primary"
-              v-html="highlight(keyword, value, 'highlight-name')"></browser-link>
-    </div>
+  <browser-link :href="url">
+    <el-tag size="mini" v-show="resolution"
+            disable-transitions :type="getResolutionTagType(resolution)">
+      {{resolution}}
+    </el-tag>
+    <span class="page-items-magnet"
+          v-html="highlight(keyword, value, 'highlight-name')"></span>
+  </browser-link>
 </template>
 
 <script>
 
   import BrowserLink from './BrowserLink'
+
   export default {
     components: { BrowserLink },
     props: ['keyword', 'resolution', 'url', 'value'],
@@ -41,12 +42,12 @@
   }
 </script>
 <style lang="scss">
-    .page-items-magnet {
-        color: $--color-primary;
-        cursor: pointer;
+  .page-items-magnet {
+    color: $--color-primary;
+    cursor: pointer;
 
-        .highlight-name {
-            color: $--color-danger;
-        }
+    .highlight-name {
+      color: $--color-danger;
     }
+  }
 </style>

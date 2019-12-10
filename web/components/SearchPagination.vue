@@ -1,8 +1,8 @@
 <template>
   <!--页码-->
   <el-pagination
-    @current-change="$emit('change', value)"
-    :current-page="value"
+    @current-change="emitPageChanged"
+    :current-page="page"
     background
     layout="prev, pager, next"
     :pager-count="5"
@@ -20,9 +20,9 @@
     components: {
       BrowserLink
     },
-    data () {
-      return {
-        value: this.page
+    methods: {
+      emitPageChanged (page) {
+        this.$emit('change', page)
       }
     },
     created () {

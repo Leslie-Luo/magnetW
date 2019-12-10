@@ -1,6 +1,6 @@
 <template>
   <div class="search-input">
-    <el-input :placeholder="project.searchPlaceholder"
+    <el-input :placeholder="placeholder"
               @keyup.enter.native="emitClickSearch"
               v-model="value"
               clearable
@@ -16,15 +16,17 @@
     props: ['name', 'keyword'],
     data () {
       return {
-        value: null
+        value: null,
+        placeholder: null
       }
     },
     methods: {
       emitClickSearch () {
-        this.$emit('search', this.value || this.project.searchPlaceholder)
+        this.$emit('search', this.value || this.placeholder)
       }
     },
     created () {
+      this.placeholder = this.project.searchPlaceholder[Math.floor(Math.random() * this.project.searchPlaceholder.length)]
       this.value = this.keyword
     },
     mounted () {

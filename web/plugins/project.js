@@ -12,7 +12,7 @@ Vue.use({
         menu: [
           {
             index: 'doc',
-            text: '文档',
+            text: '文档中心',
             submenu: [
               { link: `${baseURL}`, text: '文档首页' },
               { link: `${baseURL}/guide`, text: '使用指南' },
@@ -20,7 +20,7 @@ Vue.use({
             ]
           }
         ],
-        searchPlaceholder: '火影忍者',
+        searchPlaceholder: ['火影忍者', '钢铁侠', '美国队长', '犬夜叉', '七龙珠', '奥特曼'],
         guide: {
           content: [
             {

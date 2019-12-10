@@ -13,7 +13,7 @@
         <el-table-column
                 label="名称">
             <template slot-scope="scope">
-                <highlight-name :keyword="keyword" :url="scope.row.magent"
+                <highlight-name :keyword="keyword" :url="scope.row.magnet"
                                 :resolution="scope.row.resolution" :value="scope.row.name">
                 </highlight-name>
             </template>

@@ -37,6 +37,19 @@ router.get('/search', async (ctx) => {
   }
 })
 
+router.get('/detail', async (ctx) => {
+  const id = ctx.query.id
+  const path = ctx.query.path
+  if (id && path) {
+    const ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
+
+    const detail = await repo.obtainDetailResult({ id, path }, { userAgent: ua })
+    ctx.success(detail)
+  } else {
+    ctx.throw(400, '请指定ID和URL')
+  }
+})
+
 app.use(router.routes()).use(router.allowedMethods())
 
 const port = parseInt(process.env.PORT || 8000)
