@@ -1,1 +1,4 @@
-src/renderer/assets/*
+/build/
+/config/
+/dist/
+/*.js
