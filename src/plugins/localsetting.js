@@ -18,12 +18,12 @@ function get (key) {
   try {
     localSetting = JSON.parse(Vue.localStorage.get('local_setting'))
   } catch (e) {
-    localSetting = {}
+
   }
   if (key) {
     return localSetting && localSetting.hasOwnProperty(key) ? localSetting[key] : null
   }
-  return localSetting
+  return localSetting || {}
 }
 
 Vue.use({

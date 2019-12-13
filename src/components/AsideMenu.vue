@@ -61,7 +61,6 @@
         return `${this.project.icons.baseUrl}/${id}.${this.project.icons.extension}`
       },
       handleApplySetting () {
-        console.log(this.localSetting)
         this.$localSetting.save(this.localSetting)
       }
     },
