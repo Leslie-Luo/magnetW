@@ -1,0 +1,308 @@
+<template>
+  <el-container v-loading="loading.page" :class="windowKey === 'max' ? 'container-full' : 'container'" ref="main">
+    <el-header>
+      <pager-header>
+        <!--搜索框与排序菜单-->
+        <search-input :name="activeRule?activeRule.name:null"
+                      class="pager-header-input"
+                      @search="handleClickSearch"
+                      :keyword="page.current.keyword"></search-input>
+      </pager-header>
+    </el-header>
+    <el-container>
+      <el-aside ref="indexAside" width="200px" class="scroll-container">
+        <el-scrollbar>
+          <aside-menu :active="page.current.id"
+                      :ruleList="rule"
+                      @rule-refresh-finished="handleRuleRefreshFinished"
+                      @change="handleRuleChanged"></aside-menu>
+        </el-scrollbar>
+      </el-aside>
+      <el-main>
+        <guide-page ref="guidePage" v-show="guidePage.show"
+                    :message="guidePage.message" :type="guidePage.type"></guide-page>
+        <div class="index-main scroll-container" v-if="activeRule">
+          <el-scrollbar class="index-main-scrollbar">
+            <div class="pager-search-header" ref="pagerSearchHeader">
+              <div class="search-option">
+                <!--排序选项-->
+                <search-sort
+                  class="search-option-left"
+                  :url="page.current.url||activeRule.url"
+                  :paths="activeRule.paths"
+                  :window-key="windowKey"
+                  @change="handleSortChanged"
+                  @window-change="handleWindowChanged"
+                  :sortKey="page.current.sort"></search-sort>
+                <!--页码-->
+                <search-pagination :page="page.current.page"
+                                   v-if="page.items"
+                                   @change="handlePageChanged"></search-pagination>
+              </div>
+            </div>
+            <!--搜索结果-->
+            <div ref="pagerSearchItems" class="pager-search-items" v-loading="loading.table">
+              <div class="index-main-content" v-if="page.items">
+                <pager-items :items="page.items"
+                             :keyword="page.current.keyword"
+                             :baseURL="activeRule.url"
+                             @show-detail="handleShowDetailDialog"></pager-items>
+                <search-pagination class="footer-search-pagination"
+                                   :page="page.current.page"
+                                   @change="handlePageChanged"></search-pagination>
+              </div>
+            </div>
+          </el-scrollbar>
+          <el-backtop target=".index-main-scrollbar .el-scrollbar__wrap" ref="backtop">
+          </el-backtop>
+          <detail-dialog v-if="detailDialog"
+                         :dialog="detailDialog"></detail-dialog>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+</template>
+
+<script>
+  import AsideMenu from '../components/AsideMenu'
+  import BrowserLink from '../components/BrowserLink'
+  import SearchInput from '../components/SearchInput'
+  import SearchSort from '../components/SearchSort'
+  import SearchPagination from '../components/SearchPagination'
+  import PagerItems from '../components/PagerItems'
+  import GuidePage from '../components/GuidePage'
+  import PagerHeader from '../components/PagerHeader'
+  import DetailDialog from '../components/DetailDialog'
+  import axios from '@/plugins/axios'
+
+  export default {
+    components: {
+      DetailDialog,
+      AsideMenu,
+      BrowserLink,
+      SearchSort,
+      SearchInput,
+      SearchPagination,
+      PagerItems,
+      GuidePage,
+      PagerHeader
+    },
+    data () {
+      return {
+        rule: null,
+        page: {
+          current: null,
+          items: null
+        },
+        activeRule: null,
+        loading: {
+          table: false,
+          page: false
+        },
+        guidePage: {
+          show: true,
+          type: 'success',
+          message: null
+        },
+        detailDialog: {
+          show: false
+        },
+        windowKey: 'normal'
+      }
+    },
+    beforeRouteUpdate (to, from, next) {
+      this.handleRequestSearch()
+      next()
+    },
+    methods: {
+      handleRuleRefreshFinished (rules, err) {
+        const message = err ? err.message : `成功刷新${rules.length}个规则`
+        this.guidePage.message = message
+        this.guidePage.type = err ? 'error' : 'success'
+        console.info(message)
+      },
+      handleRuleChanged (active) {
+        this.activeRule = active
+        this.$localSetting.saveValue('last_rule_id', active.id)
+
+        const keys = Object.keys(active.paths)
+        this.page.items = null
+        this.page.current.id = active.id
+        this.page.current.sort = keys[0]
+        this.page.current.page = 1
+        this.page.current.url = active.url
+
+        if (active.id !== this.$route.params.id) {
+          this.redirectSearch()
+        }
+      },
+      handleClickSearch (keyword) {
+        this.page.current.keyword = keyword
+        this.page.current.page = 1
+
+        this.redirectSearch()
+      },
+      handlePageChanged (page) {
+        this.page.current.page = page
+        this.redirectSearch()
+      },
+      handleSortChanged (sortKey) {
+        this.page.current.sort = sortKey
+        this.page.current.page = 1
+        this.redirectSearch()
+      },
+      redirectSearch () {
+        const cur = this.page.current
+        const query = this.$route.query
+        if (cur.id === this.$route.params.id && cur.sort === query.s && cur.keyword === query.k && cur.page === query.p) {
+          this.handleRequestSearch()
+        } else {
+          const query = {s: cur.sort, k: cur.keyword, p: cur.page}
+          this.$router.push({
+            name: 'index',
+            params: {id: cur.id},
+            query: cur.keyword ? query : null
+          })
+        }
+      },
+      handleRequestSearch () {
+        // 发起请求
+        const params = this.page.current
+        if (params.keyword) {
+          this.guidePage.show = false
+          this.loading.table = true
+          console.info('搜索', JSON.stringify(params, '/t', 2))
+
+          axios.get('/search', {
+            params: params
+          }).then((rsp) => {
+            this.page = rsp.data
+          }).catch((err) => {
+            this.$message({
+              message: err.message,
+              type: 'error'
+            })
+          }).finally(() => {
+            this.loading.table = false
+          })
+        }
+      },
+      handleShowDetailDialog ({name, path}) {
+        this.detailDialog = {
+          show: true,
+          id: this.page.current.id,
+          name: name,
+          path: path
+        }
+      },
+      handleWindowChanged (key) {
+        this.windowKey = key
+      }
+    },
+    created () {
+      const params = this.$route.params
+      const query = this.$route.query
+      this.page.current = {
+        id: params.id,
+        keyword: query.k,
+        sort: query.s,
+        page: parseInt(query.p)
+      }
+    },
+    mounted () {
+      this.handleRequestSearch()
+    },
+    head: {
+      title: function () {
+        const cur = this.page.current
+        return cur.keyword ? {
+          inner: cur.keyword ? `${cur.keyword} - ${cur.page}` : null,
+          complement: this.$app.appName
+        } : null
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+
+  .container {
+    max-width: 960px;
+    margin: auto;
+  }
+
+  .container-full {
+    max-width: inherit;
+    margin: auto;
+  }
+
+  .pager-search-header {
+    padding: 20px;
+    background-color: white;
+    /*
+    position: fixed;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
+    */
+  }
+
+  .pager-search-items {
+    padding: 0 20px 20px 20px;
+    margin-top: 0;
+  }
+
+  .index-main {
+    padding: 0 !important;
+    position: relative;
+
+    .el-backtop {
+      position: absolute;
+    }
+  }
+
+  .index-main-scrollbar {
+    border-right: none;
+  }
+
+  .guide-page {
+    margin-top: 70px;
+    padding: 0 20px 20px 20px;
+    position: absolute;
+    z-index: 2000;
+  }
+
+  .pager-search-items {
+
+    /deep/ .el-loading-spinner {
+      top: 230px !important;
+    }
+  }
+
+  .footer-search-option {
+    margin-top: 20px;
+  }
+
+  .search-option {
+    display: flex;
+    align-items: center;
+
+    .search-option-left {
+      flex: 1;
+
+    }
+  }
+
+  .footer-search-pagination {
+    margin-top: 15px;
+    text-align: right;
+  }
+
+  .pager-header-input {
+    padding-left: 30px;
+    padding-right: 30px;
+    max-width: 500px;
+    margin: auto;
+  }
+
+</style>

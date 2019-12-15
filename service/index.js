@@ -1,13 +1,35 @@
-const { app, initialize } = require('../service/api')
+const path = require('path')
 
-async function start () {
-  await initialize()
-
-  const port = parseInt(process.env.PORT || 3000)
-  const server = app.listen(port, async () => {
-    let host = server.address().address
-    console.info('启动成功，访问地址为 http://%s:%s', host === '::' ? 'localhost' : host, port)
-  })
+function join (...paths) {
+  return path.join('../src/main', ...paths)
 }
 
-start()
+const defaultConfig = require(join('./defaultConfig'))
+const {start} = require(join('./api'))
+
+async function startServer () {
+  let config
+  try {
+    const args = process.argv.splice(2)
+    const configPath = args[0]
+    if (configPath) {
+      config = require(configPath)()
+      console.info('使用自定义配置', config)
+    }
+  } catch (e) {
+    console.error(e.message)
+  }
+  if (!config) {
+    config = defaultConfig()
+    console.info('使用默认配置', config)
+  }
+
+  const {port, ip, local, message} = await start(config)
+  if (message) {
+    console.error(message)
+  } else {
+    console.info(`启动成功，本地访问 http://${local}:${port}，IP访问 http://${ip}:${port}`)
+  }
+}
+
+startServer()
