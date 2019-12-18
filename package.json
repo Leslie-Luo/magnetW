@@ -11,7 +11,7 @@
     "build:web": "cd web && npm run build && cd .. && node scripts/copy-web.js",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
-    "build:service": "cd web && npm run build && cd .. && node scripts/copy-service.js",
+    "build:service": "node scripts/build-service.js",
     "dev": "node .electron-vue/dev-runner.js",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src",
@@ -19,7 +19,7 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "npm run lint:fix",
-    "dev:api": "nodemon service/index.js",
+    "dev:api": "nodemon src/main/service.js",
     "dev:web": "cd web && npm run dev",
     "install:all": "npm install && cd web && npm install"
   },

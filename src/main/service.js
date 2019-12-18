@@ -1,11 +1,5 @@
-const path = require('path')
-
-function join (...paths) {
-  return path.join('../src/main', ...paths)
-}
-
-const defaultConfig = require(join('./defaultConfig'))
-const {start} = require(join('./api'))
+const defaultConfig = require('./defaultConfig')
+const {start} = require('./api')
 
 async function startServer () {
   let config
