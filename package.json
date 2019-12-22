@@ -6,9 +6,9 @@
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "npm run build:web && npm run build:service && node .electron-vue/build.js && electron-builder --platform=all",
-    "build:win": "node .electron-vue/build.js && electron-builder --platform=win",
-    "build:mac": "node .electron-vue/build.js && electron-builder --platform=mac",
-    "build:web": "node scripts/build-web.js",
+    "build:win": "npm run build:web && node .electron-vue/build.js && electron-builder --platform=win",
+    "build:mac": "npm run build:web && node .electron-vue/build.js && electron-builder --platform=mac",
+    "build:web": "cd web && npm run build",
     "build:service": "node scripts/build-service.js",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",

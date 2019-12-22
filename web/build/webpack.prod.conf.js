@@ -63,6 +63,8 @@ const webpackConfig = merge(baseWebpackConfig, {
     new HtmlWebpackPlugin({
       filename: config.build.index,
       template: 'index.html',
+      title : process.env.npm_package_appName,
+      description : process.env.npm_package_description,
       inject: true,
       minify: {
         removeComments: true,

@@ -243,12 +243,8 @@
     margin: auto;
   }
 
-  .el-main{
+  .el-main {
     position: relative;
-  }
-
-  .guide-page{
-    width: 100%;
   }
 
   .pager-search-header {
@@ -285,6 +281,8 @@
     padding: 0 20px 20px 20px;
     position: absolute;
     z-index: 2000;
+    left: 0;
+    right: 0;
   }
 
   .pager-search-items {

@@ -22,7 +22,7 @@ execSync('cd web && npm run build', {stdio: 'inherit'})
 fs.emptyDirSync(releases)
 
 // 复制web到发布web文件夹
-fs.copySync('web/dist', `${releases}/dist/web`)
+fs.copySync('web/dist', `${releases}/web`)
 
 fs.copySync('package.json', `${releases}/package.json`)
 fs.copySync(`${source}/service.js`, `${releases}/index.js`)

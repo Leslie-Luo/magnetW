@@ -131,6 +131,8 @@ let rendererConfig = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
+      title : process.env.npm_package_build_productName,
+      description : process.env.npm_package_description,
       templateParameters (compilation, assets, options) {
         return {
           compilation: compilation,
@@ -198,7 +200,7 @@ if (process.env.NODE_ENV === 'production') {
       // 复制web编译文件夹
       {
         from: path.join(__dirname, '../web/dist'),
-        to: path.join(__dirname, '../dist/web'),
+        to: path.join(__dirname, '../dist/electron/web'),
         ignore: ['.*']
       }
     ]),
