@@ -13,11 +13,12 @@ module.exports = async (ctx, next) => {
       ctx.throw(ctx.status, ctx.message)
     }
   } catch (e) {
-    console.error(e)
-    ctx.status = e.statusCode || e.status || 500
+    const maxLength = 100
+    const message = e.message
+    ctx.status = e.statusCode || 500
     ctx.body = {
       success: false,
-      message: e.message
+      message: message.length > maxLength ? `${message.substring(0, maxLength)}...` : message
     }
   }
 }

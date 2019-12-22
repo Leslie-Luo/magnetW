@@ -93,6 +93,7 @@
 <style lang="scss" scoped>
     .el-main {
         padding-top: 0;
+        height: 100%;
     }
 
     .el-header {

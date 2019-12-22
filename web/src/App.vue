@@ -36,10 +36,6 @@
     color: $color-title;
   }
 
-  .highlight-name {
-    color: $--color-primary;
-  }
-
   .align-items-center {
     display: flex;
     align-items: center;

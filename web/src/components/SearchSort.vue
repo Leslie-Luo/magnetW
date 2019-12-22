@@ -7,10 +7,10 @@
     <el-dropdown>
       <el-button size="mini">{{getLabelByKey(checkedSortKey)||'选择排序'}}<i class="el-icon-arrow-down el-icon--right"></i>
       </el-button>
-      <el-dropdown-menu slot="dropdown" @command="emitSortChanged">
+      <el-dropdown-menu slot="dropdown">
         <el-dropdown-item v-for="(value, key) in paths" :key="key"
-                          :command="key">
-          <router :query="{ s: key }">{{getLabelByKey(key)}}</router>
+                          :command="key" class="dropdown-sort">
+          <router :query="{ s: key ,p:1}" class="dropdown-sort-item">{{getLabelByKey(key)}}</router>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -35,10 +35,6 @@
   export default {
     props: {
       'url': String, 'paths': Object, 'sortKey': String, 'windowKey': String
-    },
-    model: {
-      prop: 'sortKey',
-      event: 'change'
     },
     data () {
       return {
@@ -66,13 +62,9 @@
       }
     },
     components: {
-      Router,
-      BrowserLink
+      BrowserLink, Router
     },
     methods: {
-      emitSortChanged (key) {
-        this.$emit('change', key)
-      },
       emitWindowChanged (key) {
         this.$emit('window-change', key)
       },
@@ -105,5 +97,13 @@
   .link-button {
     vertical-align: middle;
     margin-right: 15px;
+  }
+
+  .dropdown-sort {
+    padding: 0;
+
+    .dropdown-sort-item {
+      padding: 0 20px;
+    }
   }
 </style>

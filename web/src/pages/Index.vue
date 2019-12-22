@@ -1,6 +1,6 @@
 <template>
   <el-container v-loading="loading.page" :class="windowKey === 'max' ? 'container-full' : 'container'" ref="main">
-    <el-header>
+    <el-header ref="header">
       <pager-header>
         <!--搜索框与排序菜单-->
         <search-input :name="activeRule?activeRule.name:null"
@@ -9,7 +9,7 @@
                       :keyword="page.current.keyword"></search-input>
       </pager-header>
     </el-header>
-    <el-container>
+    <el-container style="height: 89%">
       <el-aside ref="indexAside" width="200px" class="scroll-container">
         <el-scrollbar>
           <aside-menu :active="page.current.id"
@@ -65,7 +65,6 @@
 
 <script>
   import AsideMenu from '../components/AsideMenu'
-  import BrowserLink from '../components/BrowserLink'
   import SearchInput from '../components/SearchInput'
   import SearchSort from '../components/SearchSort'
   import SearchPagination from '../components/SearchPagination'
@@ -79,7 +78,6 @@
     components: {
       DetailDialog,
       AsideMenu,
-      BrowserLink,
       SearchSort,
       SearchInput,
       SearchPagination,
@@ -113,6 +111,13 @@
     beforeRouteUpdate (to, from, next) {
       this.handleRequestSearch()
       next()
+    },
+    watch: {
+      '$route.query' (to, from) {
+        if (to.k) this.page.current.keyword = to.k
+        if (to.s) this.page.current.sort = to.s
+        if (to.p) this.page.current.page = to.p
+      }
     },
     methods: {
       handleRuleRefreshFinished (rules, err) {

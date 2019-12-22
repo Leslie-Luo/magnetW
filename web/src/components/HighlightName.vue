@@ -1,5 +1,5 @@
 <template>
-  <browser-link :href="url">
+  <browser-link :href="url" type="primary">
     <el-tag size="mini" v-show="resolution"
             disable-transitions :type="getResolutionTagType(resolution)">
       {{resolution}}
@@ -13,7 +13,7 @@
   import BrowserLink from './BrowserLink'
 
   export default {
-    components: { BrowserLink },
+    components: {BrowserLink},
     props: ['keyword', 'resolution', 'url', 'value'],
     methods: {
       getResolutionTagType (resolution) {
@@ -40,8 +40,8 @@
     }
   }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
   .highlight-name {
-    color: $--color-danger;
+    color: $--color-danger
   }
 </style>

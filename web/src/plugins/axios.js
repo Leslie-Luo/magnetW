@@ -1,8 +1,8 @@
 import axios from 'axios'
 
+const isDev = process.env.NODE_ENV === 'development'
 let http = axios.create({
-  // baseURL: process.env.baseUrl
-  baseURL: '/api',
+  baseURL: isDev ? 'http://localhost:9000/api' : '/api',
   timeout: 10000
 })
 http.interceptors.response.use(response => {

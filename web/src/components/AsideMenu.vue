@@ -38,10 +38,8 @@
 <script>
   import ruleList from '&/rule'
   import axios from '@/plugins/axios'
-  import Router from './Router'
 
   export default {
-    components: {Router},
     props: {
       active: String
     },
@@ -96,8 +94,12 @@
       if (Object.keys(localSetting).length > 0) {
         this.localSetting = localSetting
       }
+      let active = this.active
+      if (localSetting.memoryLastRule && localSetting.last_rule_id) {
+        active = localSetting.last_rule_id
+      }
 
-      this.emitRuleChangeByID(this.active || localSetting.last_rule_id)
+      this.emitRuleChangeByID(active)
       this.handleReloadRules()
     }
   }
