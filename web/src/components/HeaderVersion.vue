@@ -1,5 +1,5 @@
 <template>
-  <browser-link href="/">
+  <browser-link href="/" target="_self">
     <div class="header-version align-items-center">
       <img src="/logo.png" width="36" height="36"/>
       <div>

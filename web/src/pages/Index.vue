@@ -1,66 +1,69 @@
 <template>
-  <el-container v-loading="loading.page" :class="windowKey === 'max' ? 'container-full' : 'container'" ref="main">
-    <el-header ref="header">
-      <pager-header>
-        <!--搜索框与排序菜单-->
-        <search-input :name="activeRule?activeRule.name:null"
-                      class="pager-header-input"
-                      @search="handleClickSearch"
-                      :keyword="page.current.keyword"></search-input>
-      </pager-header>
-    </el-header>
-    <el-container style="height: 89%">
-      <el-aside ref="indexAside" width="200px" class="scroll-container">
-        <el-scrollbar>
-          <aside-menu :active="page.current.id"
-                      :ruleList="rule"
-                      @rule-refresh-finished="handleRuleRefreshFinished"
-                      @change="handleRuleChanged"></aside-menu>
-        </el-scrollbar>
-      </el-aside>
-      <el-main>
-        <guide-page ref="guidePage" v-show="guidePage.show"
-                    :message="guidePage.message" :type="guidePage.type"></guide-page>
-        <div class="index-main scroll-container" v-if="activeRule">
-          <el-scrollbar class="index-main-scrollbar">
-            <div class="pager-search-header" ref="pagerSearchHeader">
-              <div class="search-option">
-                <!--排序选项-->
-                <search-sort
-                  class="search-option-left"
-                  :url="page.current.url||activeRule.url"
-                  :paths="activeRule.paths"
-                  :window-key="windowKey"
-                  @change="handleSortChanged"
-                  @window-change="handleWindowChanged"
-                  :sortKey="page.current.sort"></search-sort>
-                <!--页码-->
-                <search-pagination :page="page.current.page"
-                                   v-if="page.items"
-                                   @change="handlePageChanged"></search-pagination>
-              </div>
-            </div>
-            <!--搜索结果-->
-            <div ref="pagerSearchItems" class="pager-search-items" v-loading="loading.table">
-              <div class="index-main-content" v-if="page.items">
-                <pager-items :items="page.items"
-                             :keyword="page.current.keyword"
-                             :baseURL="activeRule.url"
-                             @show-detail="handleShowDetailDialog"></pager-items>
-                <search-pagination class="footer-search-pagination"
-                                   :page="page.current.page"
-                                   @change="handlePageChanged"></search-pagination>
-              </div>
-            </div>
+  <div style="height: 100%">
+    <el-container v-loading="loading.page" :class="windowKey === 'max' ? 'container-full' : 'container'" ref="main">
+      <el-header ref="header">
+        <pager-header>
+          <!--搜索框与排序菜单-->
+          <search-input :name="activeRule?activeRule.name:null"
+                        class="pager-header-input"
+                        @search="handleClickSearch"
+                        :keyword="page.current.keyword"></search-input>
+        </pager-header>
+      </el-header>
+      <el-container style="height: 89%">
+        <el-aside ref="indexAside" width="200px" class="scroll-container">
+          <el-scrollbar>
+            <aside-menu :active="page.current.id"
+                        :ruleList="rule"
+                        @rule-refresh-finished="handleRuleRefreshFinished"
+                        @change="handleRuleChanged"></aside-menu>
           </el-scrollbar>
-          <el-backtop target=".index-main-scrollbar .el-scrollbar__wrap" ref="backtop">
-          </el-backtop>
-          <detail-dialog v-if="detailDialog"
-                         :dialog="detailDialog"></detail-dialog>
-        </div>
-      </el-main>
+        </el-aside>
+        <el-main>
+          <guide-page ref="guidePage" v-show="guidePage.show"
+                      :message="guidePage.message" :type="guidePage.type"></guide-page>
+          <div class="index-main scroll-container" v-if="activeRule">
+            <el-scrollbar class="index-main-scrollbar">
+              <div class="pager-search-header" ref="pagerSearchHeader">
+                <div class="search-option">
+                  <!--排序选项-->
+                  <search-sort
+                    class="search-option-left"
+                    :url="page.current.url||activeRule.url"
+                    :paths="activeRule.paths"
+                    :window-key="windowKey"
+                    @change="handleSortChanged"
+                    @window-change="handleWindowChanged"
+                    :sortKey="page.current.sort"></search-sort>
+                  <!--页码-->
+                  <search-pagination :page="page.current.page"
+                                     v-if="page.items"
+                                     @change="handlePageChanged"></search-pagination>
+                </div>
+              </div>
+              <!--搜索结果-->
+              <div ref="pagerSearchItems" class="pager-search-items" v-loading="loading.table">
+                <div class="index-main-content" v-if="page.items">
+                  <pager-items :items="page.items"
+                               :keyword="page.current.keyword"
+                               :baseURL="activeRule.url"
+                               @show-detail="handleShowDetailDialog"></pager-items>
+                  <search-pagination class="footer-search-pagination"
+                                     :page="page.current.page"
+                                     @change="handlePageChanged"></search-pagination>
+                </div>
+              </div>
+            </el-scrollbar>
+            <el-backtop target=".index-main-scrollbar .el-scrollbar__wrap" ref="backtop">
+            </el-backtop>
+            <detail-dialog v-if="detailDialog"
+                           :dialog="detailDialog"></detail-dialog>
+          </div>
+        </el-main>
+      </el-container>
     </el-container>
-  </el-container>
+    <github-badge></github-badge>
+  </div>
 </template>
 
 <script>
@@ -72,6 +75,7 @@
   import GuidePage from '../components/GuidePage'
   import PagerHeader from '../components/PagerHeader'
   import DetailDialog from '../components/DetailDialog'
+  import GithubBadge from '../components/GithubBadge'
   import axios from '@/plugins/axios'
 
   export default {
@@ -83,7 +87,8 @@
       SearchPagination,
       PagerItems,
       GuidePage,
-      PagerHeader
+      PagerHeader,
+      GithubBadge
     },
     data () {
       return {
@@ -108,15 +113,12 @@
         windowKey: 'normal'
       }
     },
-    beforeRouteUpdate (to, from, next) {
-      this.handleRequestSearch()
-      next()
-    },
     watch: {
       '$route.query' (to, from) {
         if (to.k) this.page.current.keyword = to.k
         if (to.s) this.page.current.sort = to.s
         if (to.p) this.page.current.page = to.p
+        this.handleRequestSearch()
       }
     },
     methods: {
@@ -239,6 +241,14 @@
   .container-full {
     max-width: inherit;
     margin: auto;
+  }
+
+  .el-main{
+    position: relative;
+  }
+
+  .guide-page{
+    width: 100%;
   }
 
   .pager-search-header {

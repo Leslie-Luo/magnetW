@@ -11,11 +11,13 @@
       <div v-if="detail" class="detail-info">
         <div class="detail-info-left">
           <browser-link v-show="detail.magnet" type="primary" :href="detail.magnet">{{detail.magnet}}</browser-link>
-          <div class="row-title">文件列表</div>
-          <el-row v-for="f in detail.files" :key="f.name" class="file-row-item" :gutter="20">
-            <el-col :span="20">{{f.name}}</el-col>
-            <el-col :span="4">{{f.size | size}}</el-col>
-          </el-row>
+          <div v-if="detail.files">
+            <div class="row-title">文件列表</div>
+            <el-row v-for="f in detail.files" :key="f.name" class="file-row-item" :gutter="20">
+              <el-col :span="20">{{f.name}}</el-col>
+              <el-col :span="4">{{f.size | size}}</el-col>
+            </el-row>
+          </div>
         </div>
         <div class="detail-info-right">
           <qrcode v-show="detail.magnet" :value="detail.magnet"

@@ -58,7 +58,7 @@ function getRuleById (id) {
 
 async function requestDocument (url, clientHeaders) {
   const timeout = config.timeout
-  const proxyURL = config.proxy && config.proxy ? `http://${config.proxyHost}:${config.proxyPort}` : null
+  const proxyURL = config.proxy ? `http://${config.proxyHost}:${config.proxyPort}` : null
 
   // header
   const uri = new URI(url)
@@ -69,26 +69,25 @@ async function requestDocument (url, clientHeaders) {
     'Origin': origin,
     'Referer': origin
   }
-  const acceptLanguage = clientHeaders['Accept-Language']
+  const acceptLanguage = clientHeaders['accept-language']
   headers['Accept-Language'] = acceptLanguage || 'zh-CN,zh-TW;q=0.9,zh;q=0.8,en;q=0.7,und;q=0.6,ja;q=0.5'
-  const xForwardedFor = clientHeaders['X-Forwarded-For']
+  const xForwardedFor = clientHeaders['x-forwarded-for']
   if (xForwardedFor) {
     headers['X-Forwarded-For'] = xForwardedFor
   }
-  const userAgent = clientHeaders['User-Agent']
+  const userAgent = clientHeaders['user-agent']
   if (userAgent) {
-    const newUserAgent = /windows|mac|android|ios/.test(userAgent) && process.env.version ? `${userAgent} MWBrowser/${process.env.version}` : userAgent
+    const newUserAgent = /windows|mac|android|ios/gi.test(userAgent) && process.env.npm_package_version ? `${userAgent} MWBrowser/${process.env.npm_package_version}` : userAgent
     headers['User-Agent'] = config.customUserAgent && config.customUserAgentValue ? config.customUserAgentValue : newUserAgent
   }
-  // 发起请求
+  console.info({url, headers})
+
   const html = await request({
     url: url,
     headers: headers,
     timeout: timeout,
     proxy: proxyURL
   })
-
-  console.info({url, headers})
 
   // 用htmlparser2转换一次再解析
   const outerHTML = htmlparser2.DomUtils.getOuterHTML(htmlparser2.parseDOM(html))
@@ -215,14 +214,17 @@ function parseDetailDocument (document, expression) {
     }
   }
   const fileNodes = expression.files ? xpath.select(expression.files, rootNode) : null
-  const files = []
-  fileNodes.forEach((child, index) => {
-    const fileArray = format.splitByFileSize(format.extractTextByNode(child))
-    files.push({
-      name: fileArray[0],
-      size: format.extractFileSize(fileArray[1])
+  let files = null
+  if (fileNodes) {
+    files = []
+    fileNodes.forEach((child, index) => {
+      const fileArray = format.splitByFileSize(format.extractTextByNode(child))
+      files.push({
+        name: fileArray[0],
+        size: format.extractFileSize(fileArray[1])
+      })
     })
-  })
+  }
   return {magnet, files}
 }
 

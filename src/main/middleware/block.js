@@ -2,7 +2,7 @@ const blacklistRegx = ['googlebot', 'mediapartners-google', 'adsbot-google', 'ba
 module.exports = async (ctx, next) => {
   const userAgent = ctx.headers['user-agent']
   if (new RegExp(blacklistRegx, 'gi').test(userAgent)) {
-    ctx.throw(404, '404')
+    ctx.throw(404)
   } else {
     await next()
   }

@@ -72,7 +72,7 @@
       // 服务操作
       ipcRenderer.on('on-start-server', (event, status) => {
         this.loading.starting = false
-        if (status.message) {
+        if (status && status.message) {
           this.$message({
             message: status.message,
             type: 'error'

@@ -55,6 +55,14 @@ Vue.filter('size', function (size) {
 })
 
 Vue.filter('date', function (time) {
+  if (/^-?\d+$/.test(time)) {
+    return moment(time).format('YYYY-MM-DD HH:mm')
+  } else {
+    return time
+  }
+})
+
+Vue.filter('date_interval', function (time) {
   if (/^\d+$/.test(time)) {
     let delta = moment().valueOf() - time
     delta /= 60 * 1000

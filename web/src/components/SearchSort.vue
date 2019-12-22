@@ -1,7 +1,7 @@
 <template>
   <div class="search-sort">
     <!--源站按钮-->
-    <browser-link :button="true" size="mini" :href="url|formatURL" :_blank="true" class="link-button">去源站</browser-link>
+    <browser-link v-show="false" :button="true" size="mini" :href="url|formatURL" :_blank="true" class="link-button">去源站</browser-link>
 
     <!--排序方式-->
     <el-dropdown>

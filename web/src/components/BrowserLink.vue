@@ -1,7 +1,7 @@
 <template>
   <el-link :type="type"
            :href="href"
-           :target="_blank?'_blank':'_self'"
+           :target="target||'_blank'"
            :underline="underline||false"
            :icon="icon"
            :class="linkClass">
@@ -18,7 +18,7 @@
       'type': String,
       'button': Boolean,
       'size': String,
-      '_blank': Boolean,
+      'target': String,
       'icon': String
     },
     computed: {

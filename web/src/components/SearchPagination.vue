@@ -11,14 +11,12 @@
 </template>
 
 <script>
-  import BrowserLink from './BrowserLink'
 
   export default {
     props: {
       page: Number
     },
     components: {
-      BrowserLink
     },
     methods: {
       emitPageChanged (page) {

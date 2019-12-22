@@ -11,8 +11,7 @@
     "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js",
     "build:clean": "npm run clean && npm run build",
-    "clean": "node build/clean.js",
-    "install:all": "npm install && cd service && npm install"
+    "clean": "node build/clean.js"
   },
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^1.0.1",

@@ -79,6 +79,7 @@
       },
       handleReloadRules () {
         axios.get('/rule').then((rsp) => {
+          this.$localSetting.saveValue('rule_list', rsp.data)
           this.ruleList = rsp.data
           this.$emit('rule-refresh-finished', rsp.data)
         }).catch((err) => {
