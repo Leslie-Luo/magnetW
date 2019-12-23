@@ -7,7 +7,7 @@ const Terser = require('terser')
 // 需要忽略的文件/文件夹
 const ignore = ['.DS_Store', 'service.js', 'index.js', 'index.dev.js', 'ipc.js', 'node_modules']
 // 忽略压缩的文件
-const ignoreMinify = ['defaultConfig.js']
+const ignoreMinify = ['defaultConfig.js', 'process-config.js']
 
 const releases = 'build/releases/service'
 

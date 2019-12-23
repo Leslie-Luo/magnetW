@@ -1,24 +1,18 @@
-const defaultConfig = require('./defaultConfig')
+const processConfig = require('./process-config')
 const {start} = require('./api')
 
 async function startServer () {
-  let config
   try {
     const args = process.argv.splice(2)
     const configPath = args[0]
     if (configPath) {
-      config = require(configPath)()
-      console.info('使用自定义配置', config)
+      processConfig.saveConfig(require(configPath)())
     }
   } catch (e) {
     console.error(e.message)
   }
-  if (!config) {
-    config = defaultConfig()
-    console.info('使用默认配置', config)
-  }
 
-  const {port, ip, local, message} = await start(config)
+  const {port, ip, local, message} = await start(processConfig.getConfig())
   if (message) {
     console.error(message)
   } else {
