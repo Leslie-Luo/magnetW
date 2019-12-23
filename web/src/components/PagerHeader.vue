@@ -7,8 +7,8 @@
       <slot></slot>
     </div>
     <div class="header-right">
-      <el-menu mode="horizontal" :default-active="defaultActive" v-if="project.menu">
-        <template v-for="menuItem in project.menu">
+      <el-menu mode="horizontal" :default-active="defaultActive" v-if="$config.menu">
+        <template v-for="menuItem in $config.menu">
           <el-submenu v-if="menuItem.submenu" :index="menuItem.index" popper-class="header-submenu"
                       :key="menuItem.index">
             <browser-link slot="title" :href="menuItem.link" :underline="false">{{menuItem.text}}

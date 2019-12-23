@@ -9,7 +9,7 @@
       <span slot="title">{{message}}</span>
     </el-alert>
     <div class="guide-page-content">
-      <div v-for="it in project.guide.content" class="guide-content">
+      <div v-for="it in $config.guide.content" class="guide-content">
         <span class="guide-title">{{it.title}}</span>
         <div class="guide-content-item" v-for="item in it.items">
           <browser-link v-if="item.link" :href="item.link" type="primary">{{item.text}}</browser-link>
