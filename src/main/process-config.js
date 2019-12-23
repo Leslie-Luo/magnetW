@@ -1,3 +1,5 @@
+const Store = require('electron-store')
+const store = new Store()
 const defaultConfig = require('./defaultConfig')
 
 function saveConfig (newConfig) {

@@ -4,8 +4,6 @@ const {ipcMain, app} = require('electron')
 const request = require('request-promise-native')
 const {start, getServerInfo, stop} = require('./api')
 const processConfig = require('./process-config')
-const Store = require('electron-store')
-const store = new Store()
 
 
 async function registerIPC (mainWindow) {
