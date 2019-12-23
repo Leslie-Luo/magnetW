@@ -2,17 +2,20 @@ const processConfig = require('./process-config')
 const {start} = require('./api')
 
 async function startServer () {
+  let configVariable = null
   try {
     const args = process.argv.splice(2)
     const configPath = args[0]
     if (configPath) {
-      processConfig.saveConfig(require(configPath)())
+      configVariable = processConfig.extractConfigVariable(require(configPath)())
     }
   } catch (e) {
     console.error(e.message)
   }
 
-  const {port, ip, local, message} = await start(processConfig.getConfig())
+  const newConfig = processConfig.getConfig(configVariable)
+  configVariable ? console.info('使用自定义配置启动服务', configVariable, newConfig) : console.info('使用默认配置启动服务', configVariable, newConfig)
+  const {port, ip, local, message} = await start(newConfig)
   if (message) {
     console.error(message)
   } else {

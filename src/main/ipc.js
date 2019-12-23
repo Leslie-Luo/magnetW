@@ -4,15 +4,20 @@ const {ipcMain, app} = require('electron')
 const request = require('request-promise-native')
 const {start, getServerInfo, stop} = require('./api')
 const processConfig = require('./process-config')
-
+const Store = require('electron-store')
+const store = new Store()
 
 async function registerIPC (mainWindow) {
   /**
    * 启动服务
    */
   ipcMain.on('start-server', async (event, config) => {
-    processConfig.saveConfig(config)
-    event.sender.send('on-start-server', await start(processConfig.getConfig()))
+    const configVariable = processConfig.extractConfigVariable(config)
+    configVariable ? store.set('config_variable', configVariable) : store.delete('config_variable')
+    const newConfig = processConfig.getConfig(configVariable)
+
+    configVariable ? console.info('使用自定义配置启动服务', configVariable, newConfig) : console.info('使用默认配置启动服务', configVariable, newConfig)
+    event.sender.send('on-start-server', await start(newConfig))
   })
   /**
    * 停止服务
@@ -32,7 +37,7 @@ async function registerIPC (mainWindow) {
    * 获取配置信息
    */
   ipcMain.on('get-server-config', async (event) => {
-    event.sender.send('on-server-config', processConfig.getConfig())
+    event.sender.send('on-server-config', processConfig.getConfig(store.get('config_variable')))
   })
   /**
    * 获取默认配置信息

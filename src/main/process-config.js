@@ -1,8 +1,11 @@
-const Store = require('electron-store')
-const store = new Store()
 const defaultConfig = require('./defaultConfig')
 
-function saveConfig (newConfig) {
+/**
+ * 从修改后的配置对象中提取修改的变量
+ * @param newConfig
+ * @returns {null}
+ */
+function extractConfigVariable (newConfig) {
   const tempSettingVariable = {}
   let defaultSetting = defaultConfig()
   for (let key in newConfig) {
@@ -19,20 +22,25 @@ function saveConfig (newConfig) {
   if (isModified) {
     let tempSetting = defaultConfig()
     Object.assign(tempSetting, tempSettingVariable)
+    return tempSettingVariable
   }
-  isModified ? store.set('config_variable', tempSettingVariable) : store.delete('config_variable')
-  console.info('保存修改配置', tempSettingVariable)
+  return null
 }
 
-function getConfig () {
+/**
+ * 合并一个新的配置对象
+ * @param configVariable 可为null
+ * @returns {{trackers, checkUpdateURL, memoryLastRule, showProxyRule, customUserAgent, proxyHost, preload, proxy, proxyPort, customUserAgentValue, cacheExpired, trackersUrl, ruleUrl}}
+ */
+function getConfig (configVariable) {
   let localSetting = defaultConfig()
   // 合并配置
-  Object.assign(localSetting, store.get('config_variable'))
+  Object.assign(localSetting, configVariable)
   return localSetting
 }
 
 module.exports = {
   defaultConfig,
-  saveConfig,
+  extractConfigVariable,
   getConfig
 }
