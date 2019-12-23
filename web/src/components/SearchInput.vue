@@ -32,7 +32,7 @@
       }
     },
     created () {
-      this.placeholder = this.project.searchPlaceholder[Math.floor(Math.random() * this.project.searchPlaceholder.length)]
+      this.placeholder = this.$config.searchPlaceholder[Math.floor(Math.random() * this.$config.searchPlaceholder.length)]
       this.value = this.keyword
     },
     mounted () {

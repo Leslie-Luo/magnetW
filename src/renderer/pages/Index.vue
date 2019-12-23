@@ -22,7 +22,14 @@
                            type="danger" plain>停止服务
                 </el-button>
             </div>
-            <h2>配置</h2>
+            <el-row class="server-config-info">
+                <el-col :span="12">
+                    <h2>配置</h2>
+                </el-col>
+                <el-col :span="12" class="server-config-right">
+                    <el-button size="mini" type="info" plain @click="handleResetConfig">重置</el-button>
+                </el-col>
+            </el-row>
             <server-config v-if="config"
                            :config="config"
                            :starting="serverStatus!=null"></server-config>
@@ -31,7 +38,7 @@
 </template>
 
 <script>
-  import {ipcRenderer} from 'electron'
+  import {ipcRenderer, remote, shell} from 'electron'
   import ServerStatus from '../components/ServerStatus'
   import ServerConfig from '../components/ServerConfig'
   import LogoHeader from '../components/LogoHeader'
@@ -58,6 +65,36 @@
       handleStopServer () {
         this.loading.stopping = true
         ipcRenderer.send('stop-server')
+      },
+      handleResetConfig () {
+        ipcRenderer.send('get-default-server-config')
+      },
+      /**
+       * 检查更新
+       */
+      checkUpdate () {
+        this.$http.get(this.$config.checkUpdateURL)
+          .then(response => {
+            let newVerArray = response.data.version.split('.')
+            let currentVerArray = remote.app.getVersion().split('.')
+            for (let i = 0; i < newVerArray.length; i++) {
+              if (parseInt(newVerArray[i]) > parseInt(currentVerArray[i])) {
+                this.$confirm(response.data.content, `有新版本 v${response.data.version}`, {
+                  confirmButtonText: '去更新',
+                  cancelButtonText: '取消',
+                  dangerouslyUseHTMLString: true
+                }).then(() => {
+                  shell.openExternal(response.data.url)
+                }).catch(() => {
+                })
+                break
+              }
+            }
+            console.info('暂无更新', response.data.version)
+          })
+          .catch(error => {
+            console.error('检查更新失败', error)
+          })
       }
     },
     created () {
@@ -66,8 +103,6 @@
         this.loading.full = false
         this.config = config
       })
-      this.loading.full = true
-      ipcRenderer.send('get-server-config')
 
       // 服务操作
       ipcRenderer.on('on-start-server', (event, status) => {
@@ -81,11 +116,37 @@
           this.serverStatus = status
         }
       })
+      /**
+       * 停止服务
+       */
       ipcRenderer.on('on-stop-server', (event) => {
         this.loading.stopping = false
         this.serverStatus = null
       })
+
+      /**
+       * 有新版本
+       */
+      ipcRenderer.on('new-version', (event, data) => {
+        this.$confirm(data.content, `有新版本 v${data.version}`, {
+          confirmButtonText: '去更新',
+          cancelButtonText: '取消',
+          dangerouslyUseHTMLString: true
+        }).then(() => {
+          shell.openExternal(data.url)
+        }).catch(() => {
+        })
+      })
+
+      // 获取服务配置
+      this.loading.full = true
+      ipcRenderer.send('get-server-config')
+
+      // 获取服务状态
       ipcRenderer.send('get-server-info')
+
+      // 检查更新
+      ipcRenderer.send('check-update')
     }
   }
 </script>
@@ -107,5 +168,14 @@
         .server-status {
             flex: 1;
         }
+    }
+
+    .server-config-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .server-config-right {
+        text-align: right;
     }
 </style>

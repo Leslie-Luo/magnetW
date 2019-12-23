@@ -1,5 +1,6 @@
 module.exports = function () {
   return {
+    checkUpdateURL: 'https://magnetw.app/update.json',
     // 解析规则文件URL 支持网络链接和本地路径
     ruleUrl: 'https://magnetw.app/rule.json',
     // 是否显示需要代理的源站
@@ -17,7 +18,7 @@ module.exports = function () {
     // Tracker服务器列表的更新地址
     trackersUrl: 'https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt',
     // 缓存过期时间
-    cacheExpired: 3600,
+    cacheExpired: 7200,
     // 自定义UserAgent
     customUserAgent: false,
     customUserAgentValue: null

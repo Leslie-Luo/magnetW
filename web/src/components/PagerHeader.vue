@@ -41,7 +41,7 @@
       }
     },
     created () {
-      const menus = this.project.menu
+      const menus = this.$config.menu
       if (menus && menus.length > 0) {
         this.defaultActive = menus[0].index
       }

@@ -69,10 +69,10 @@
         this.$emit('change', active)
       },
       handleClickProxyDoc () {
-        window.open(this.project.proxyDocURL)
+        window.open(this.$config.proxyDocURL)
       },
       formatDefaultIcon (id) {
-        return `${this.project.icons.baseUrl}/${id}.${this.project.icons.extension}`
+        return `${this.$config.icons.baseUrl}/${id}.${this.$config.icons.extension}`
       },
       handleApplySetting () {
         this.$localSetting.save(this.localSetting)

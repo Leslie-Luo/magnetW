@@ -66,6 +66,8 @@ function getIPAddress () {
 
 async function start (config) {
   try {
+    console.info('启动服务', config)
+
     repo.applyConfig(config)
 
     const rule = await repo.loadRuleByURL()

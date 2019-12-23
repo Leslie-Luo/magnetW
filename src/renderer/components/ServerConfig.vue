@@ -1,9 +1,9 @@
 <template>
   <div class="config">
     <el-form ref="form" label-width="auto" label-position="left">
-      <el-form-item label="规则同步URL">
+      <tooltip-form-item label="规则同步URL" tooltip="源站解析规则文件URL，支持网络链接和本地路径">
         <el-input :size="formSize" v-model="config.ruleUrl"></el-input>
-      </el-form-item>
+      </tooltip-form-item>
       <el-form-item label="显示所有源站">
         <el-switch v-model="config.showProxyRule"></el-switch>
       </el-form-item>
@@ -52,7 +52,9 @@
 
 <script>
 
+  import TooltipFormItem from './TooltipFormItem'
   export default {
+    components: {TooltipFormItem},
     props: {
       config: Object,
       starting: Boolean
